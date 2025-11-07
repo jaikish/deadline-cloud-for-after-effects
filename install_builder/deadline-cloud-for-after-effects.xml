@@ -5,161 +5,111 @@
     <description>Deadline Cloud for After Effects</description>
     <detailedDescription>After Effects plugin for submitting jobs to AWS Deadline Cloud.</detailedDescription>
     <canBeEdited>1</canBeEdited>
-    <selected>0</selected>
+    <selected>1</selected>
     <show>1</show>
     <componentList>
-        <component>
-            <name>ae_2024</name>
-            <description>After Effects 2024</description>
-            <selected>0</selected>
-             <parameterList>
-                <!-- Script UI directory parameter for After Effects 2024 -->
-                <directoryParameter value="">
-                    <name>after_effects_script_ui_directory_2024</name>
-                    <description>After Effects 2024 Script UI Directory</description>
-                    <explanation>Path to the script UI directory in After Effects 2024 resources.</explanation>
-                    <allowEmptyValue>1</allowEmptyValue>
-                    <ask>yes</ask>
-                    <!-- Set default paths right before this parameter page is shown in order to set default path values based on user input -->
-                    <preShowPageActionList>
-                        <if>
-                            <conditionRuleList>
-                                <platformTest type="osx"/>
-                            </conditionRuleList>
-                            <actionList>
-                                <!-- For macOS, default to user install approach regardless of installscope until we support system installs -->
-                                <setInstallerVariable>
-                                    <name>after_effects_script_ui_directory_2024</name>
-                                    <value>${installdir}/AE2024</value>
-                                </setInstallerVariable>
-                            </actionList>
-                            <elseActionList>
-                                <!-- For Windows, handle install path based on install scope -->
-                                <if>
-                                    <conditionRuleList>
-                                        <compareText logic="equals" text="${installscope}" value="user"/>
-                                    </conditionRuleList>
-                                    <actionList>
-                                        <!-- For Windows user installation -->
-                                        <setInstallerVariable>
-                                            <name>after_effects_script_ui_directory_2024</name>
-                                            <value>${installdir}/AE2024</value>
-                                        </setInstallerVariable>
-                                    </actionList>
-                                    <elseActionList>
-                                        <!-- For Windows system installation -->
-                                        <!-- Check if the directory exists for system installs before setting install path as default -->
-                                        <if>
-                                            <conditionRuleList>
-                                                <fileExists>
-                                                    <path>C:\Program Files\Adobe\Adobe After Effects 2024\Support Files\Scripts\ScriptUI Panels</path>
-                                                </fileExists>
-                                            </conditionRuleList>
-                                            <actionList>
-                                                <setInstallerVariable>
-                                                    <name>after_effects_script_ui_directory_2024</name>
-                                                    <value>C:\Program Files\Adobe\Adobe After Effects 2024\Support Files\Scripts\ScriptUI Panels</value>
-                                                </setInstallerVariable>
-                                            </actionList>
-                                        </if>
-                                    </elseActionList>
-                                </if>
-                            </elseActionList>
-                        </if>
-                    </preShowPageActionList>
-                </directoryParameter>
-            </parameterList>
+        <componentGroup>
+            <name>after_effects_versions</name>
+            <description>Shared files for all After Effects versions</description>
             <folderList>
-                <!-- After Effects 2024 Submitter folder location -->
                 <folder>
-                    <description>After Effects 2024 Script UI Folder</description>
-                    <destination>${after_effects_script_ui_directory_2024}</destination>
-                    <name>aftereffects2024scriptuifolder</name>
+                    <description>Shared Scripts</description>
+                    <destination>${installdir}/scripts</destination>
+                    <name>sharedscriptsfolder</name>
                     <platforms>all</platforms>
                     <distributionFileList>
-                        <distributionDirectory allowWildcards="1">
-                            <origin>../dist/*</origin>
-                        </distributionDirectory>
+                        <distributionFile>
+                            <origin>../scripts/ae_submitter_user_install_helper.py</origin>
+                        </distributionFile>
                     </distributionFileList>
                 </folder>
             </folderList>
-        </component>
-        <component>
-            <name>ae_2025</name>
-            <description>After Effects 2025</description>
-            <selected>0</selected>
-            <parameterList>
-                <!-- Script UI directory parameter for After Effects 2025 -->
-                <directoryParameter value="">
-                    <name>after_effects_script_ui_directory_2025</name>
-                    <description>After Effects 2025 Script UI Directory</description>
-                    <explanation>Path to the script UI directory in After Effects 2025 resources.</explanation>
-                    <allowEmptyValue>1</allowEmptyValue>
-                    <ask>yes</ask>
-                    <!-- Set default paths right before this page is shown -->
-                    <preShowPageActionList>
-                        <if>
-                            <conditionRuleList>
-                                <platformTest type="osx"/>
-                            </conditionRuleList>
+            <componentList>
+                <component>
+                    <name>ae_2024</name>
+                    <description>After Effects 2024</description>
+                    <selected>0</selected>
+                    <parameterList>
+                        <!-- Script UI directory parameter for After Effects 2024 -->
+                        <directoryParameter value="">
+                            <name>after_effects_script_ui_directory_2024</name>
+                            <description>After Effects 2024 Script UI Directory</description>
+                            <explanation>Path to the script UI directory in After Effects 2024 resources.</explanation>
+                            <allowEmptyValue>1</allowEmptyValue>
+                            <ask>yes</ask>
+                        </directoryParameter>
+                    </parameterList>
+                    <folderList>
+                        <!-- After Effects 2024 Submitter folder location -->
+                        <folder>
+                            <description>After Effects 2024 Script UI Folder</description>
+                            <destination>${after_effects_script_ui_directory_2024}</destination>
+                            <name>aftereffects2024scriptuifolder</name>
+                            <platforms>all</platforms>
+                            <distributionFileList>
+                                <distributionDirectory allowWildcards="1">
+                                    <origin>../dist/*</origin>
+                                </distributionDirectory>
+                            </distributionFileList>
                             <actionList>
-                                <!-- For macOS, always use user install approach regardless of installscope until we support system installs -->
-                                <setInstallerVariable>
-                                    <name>after_effects_script_ui_directory_2025</name>
-                                    <value>${installdir}/AE2025</value>
-                                </setInstallerVariable>
+                                <setInstallerVariableFromScriptOutput>
+                                    <exec>python3</exec>
+                                    <execArgs>${installdir}/scripts/ae_submitter_user_install_helper.py --installation_scope "user" --major_version "24" --submitter_src_path "${after_effects_script_ui_directory_2024}" --ae_path_for_user "/Users/${system_username}/Library/Preferences/Adobe/After Effects"</execArgs>
+                                    <name>output_variable_2024</name>
+                                    <abortOnError>1</abortOnError>
+                                    <showMessageOnError>1</showMessageOnError>
+                                </setInstallerVariableFromScriptOutput>
+                                <showInfo>
+                                    <text>${output_variable_2024}</text>
+                                </showInfo>
                             </actionList>
-                            <elseActionList>
-                                <!-- For Windows, handle based on installscope -->
-                                <if>
-                                    <conditionRuleList>
-                                        <compareText logic="equals" text="${installscope}" value="user"/>
-                                    </conditionRuleList>
-                                    <actionList>
-                                        <!-- For Windows user installation -->
-                                        <setInstallerVariable>
-                                            <name>after_effects_script_ui_directory_2025</name>
-                                            <value>${installdir}/AE2025</value>
-                                        </setInstallerVariable>
-                                    </actionList>
-                                    <elseActionList>
-                                        <!-- For Windows system installation -->
-                                        <!-- Check if the directory exists for system installs before setting install path as default -->
-                                        <if>
-                                            <conditionRuleList>
-                                                <fileExists>
-                                                    <path>C:\Program Files\Adobe\Adobe After Effects 2025\Support Files\Scripts\ScriptUI Panels</path>
-                                                </fileExists>
-                                            </conditionRuleList>
-                                            <actionList>
-                                                <setInstallerVariable>
-                                                    <name>after_effects_script_ui_directory_2025</name>
-                                                    <value>C:\Program Files\Adobe\Adobe After Effects 2025\Support Files\Scripts\ScriptUI Panels</value>
-                                                </setInstallerVariable>
-                                            </actionList>
-                                        </if>
-                                    </elseActionList>
-                                </if>
-                            </elseActionList>
-                        </if>
-                    </preShowPageActionList>
-                </directoryParameter>
-            </parameterList>
-            <folderList>
-                <!-- After Effects 2025 Submitter folder location -->
-                <folder>
-                    <description>After Effects 2025 Script UI Folder</description>
-                    <destination>${after_effects_script_ui_directory_2025}</destination>
-                    <name>aftereffects2025scriptuifolder</name>
-                    <platforms>all</platforms>
-                    <distributionFileList>
-                        <distributionDirectory allowWildcards="1">
-                            <origin>../dist/*</origin>
-                        </distributionDirectory>
-                    </distributionFileList>
-                </folder>
-            </folderList>
-        </component>
+                        </folder>
+                    </folderList>
+                </component>
+                <component>
+                    <name>ae_2025</name>
+                    <description>After Effects 2025</description>
+                    <selected>1</selected>
+                    <parameterList>
+                        <!-- Script UI directory parameter for After Effects 2025 -->
+                        <directoryParameter value="">
+                            <name>after_effects_script_ui_directory_2025</name>
+                            <description>After Effects 2025 Script UI Directory</description>
+                            <explanation>Path to the script UI directory in After Effects 2025 resources.</explanation>
+                            <allowEmptyValue>1</allowEmptyValue>
+                            <ask>yes</ask>
+                            <!-- Set default paths right before this page is shown -->
+                        </directoryParameter>
+                    </parameterList>
+                    <folderList>
+                        <!-- After Effects 2025 Submitter folder location -->
+                        <folder>
+                            <description>After Effects 2025 Script UI Folder</description>
+                            <destination>${after_effects_script_ui_directory_2025}</destination>
+                            <name>aftereffects2025scriptuifolder</name>
+                            <platforms>all</platforms>
+                            <distributionFileList>
+                                <distributionDirectory allowWildcards="1">
+                                    <origin>../dist/*</origin>
+                                </distributionDirectory>
+                            </distributionFileList>
+                            <actionList>
+                                <setInstallerVariableFromScriptOutput>
+                                    <exec>python3</exec>
+                                    <execArgs>${installdir}/scripts/ae_submitter_user_install_helper.py --installation_scope "user" --major_version "25" --submitter_src_path "${after_effects_script_ui_directory_2025}" --ae_path_for_user "/Users/${system_username}/Library/Preferences/Adobe/After Effects"</execArgs>
+                                    <name>script_output_message_2025</name>
+                                    <abortOnError>1</abortOnError>
+                                    <showMessageOnError>1</showMessageOnError>
+                                </setInstallerVariableFromScriptOutput>
+                                <showInfo>
+                                    <text>${script_output_message_2025}</text>
+                                </showInfo>
+                            </actionList>
+                        </folder>
+                    </folderList>
+                </component>
+            </componentList>
+        </componentGroup>
     </componentList>
     <initializationActionList>
         <!-- Non-Linux OS validation -->
