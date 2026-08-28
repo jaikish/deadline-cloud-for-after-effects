@@ -288,6 +288,27 @@ def is_strong_error(line):
     return any(p.search(line) for p in STRONG_ERROR_PATTERNS)
 
 
+def build_render_env(base_env=None):
+    """Return the environment for the aerender subprocess.
+
+    Sets ``KMP_DUPLICATE_LIB_OK=TRUE`` to prevent the Intel MKL / OpenMP
+    duplicate-runtime abort::
+
+        OMP: Error #15: Initializing libiomp5, but found libiomp5md already initialized.
+
+    which occurs when After Effects and certain third-party plugins (e.g.
+    Trapcode, Element 3D) each load their own copy of the OpenMP runtime. Without
+    the variable the plugin aborts the process, failing the render. Deadline 10's
+    AfterEffects plugin set the same variable in ``InitializeProcess()``.
+
+    An explicit value already present in the environment (e.g. set by an operator
+    via a queue/job environment) is preserved rather than overwritten.
+    """
+    env = dict(os.environ if base_env is None else base_env)
+    env.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+    return env
+
+
 # How long to wait for the aerender child to exit before giving up, so a wedged
 # process can't hang cleanup indefinitely (the OpenJD session would then have to
 # force-terminate this script, losing the rest of the cleanup).
@@ -428,6 +449,9 @@ def run(argv):
             encoding=locale.getpreferredencoding(False),
             errors="replace",
             bufsize=1,
+            # KMP_DUPLICATE_LIB_OK=TRUE so AE + plugins that each load their own
+            # OpenMP runtime don't abort with "OMP: Error #15".
+            env=build_render_env(),
         )
 
         for line in iter(process.stdout.readline, ""):

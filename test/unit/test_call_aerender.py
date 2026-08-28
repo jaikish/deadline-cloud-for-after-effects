@@ -746,3 +746,26 @@ class TestDiagnosticPrintsAreSanitized:
 
         out = capsys.readouterr().out.splitlines()
         assert not any(ln.startswith("openjd_fail:") for ln in out)
+
+
+# ----------------------------------------------------------------------------
+# ERR-4: aerender launched with KMP_DUPLICATE_LIB_OK=TRUE
+# ----------------------------------------------------------------------------
+class TestRenderEnv:
+    def test_kmp_duplicate_lib_ok_is_set(self):
+        assert call_aerender.build_render_env(base_env={})["KMP_DUPLICATE_LIB_OK"] == "TRUE"
+
+    def test_existing_kmp_value_is_preserved(self):
+        env = call_aerender.build_render_env(base_env={"KMP_DUPLICATE_LIB_OK": "FALSE"})
+        assert env["KMP_DUPLICATE_LIB_OK"] == "FALSE"
+
+    def test_base_env_carried_through_and_not_mutated(self):
+        base = {"PATH": "/usr/bin"}
+        env = call_aerender.build_render_env(base_env=base)
+        assert env["PATH"] == "/usr/bin"
+        assert "KMP_DUPLICATE_LIB_OK" not in base
+
+    def test_popen_launched_with_built_env(self):
+        code = (_SCRIPTS_DIR / "call_aerender.py").read_text(encoding="utf-8")
+        code = "\n".join(l for l in code.splitlines() if not l.strip().startswith("#"))
+        assert "env=build_render_env()" in code
