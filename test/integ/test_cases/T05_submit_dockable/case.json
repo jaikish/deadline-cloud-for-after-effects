@@ -1,0 +1,9 @@
+{
+  "id": "T05",
+  "name": "Submit button + dockable panel",
+  "aep_slug": "submit_dockable",
+  "settings": {},
+  "expect": "SUCCEEDED",
+  "render": true,
+  "ae_run_timeout": 300
+}
