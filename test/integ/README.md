@@ -10,11 +10,12 @@ Nothing here reimplements the submitter. The harness *re-drives* the installed
 
 ## Layers
 
-Four tests per case. One cached AE drive (~1 min) feeds all four.
+Five tests per case. One cached AE drive (~1 min) feeds all of them.
 
 | Test | Proves | Runs |
 |---|---|---|
-| `test_bundle_generation` | Submitter builds a well-formed OpenJD bundle. | always |
+| `test_bundle_generation` | Submitter builds a well-formed OpenJD bundle; `openjd check` passes. | always |
+| `test_bundle_matches_golden` | Bundle matches the committed golden, after normalization. | always |
 | `test_job_settings` | Case `settings` reach the bundle; unset ones give defaults. | always |
 | `test_render` | Job reaches the expected terminal state. | `--render` |
 | `test_render_outputs` | Job wrote every expected file; sampled frames decode. | `--render` |
@@ -87,6 +88,7 @@ A run resaves `.aep` files that open with unsaved changes. Revert before committ
 | `DEADLINE_CLI` | `deadline` | Deadline CLI. |
 | `--render` / `AE_RUN_RENDER=1` | off | Enable the render layers. |
 | `--keep-outputs` | off | Keep downloaded frames for passing cases too. |
+| `AE_UPDATE_GOLDENS=1` | off | Rewrite each case's golden bundle from this run, then compare. |
 | `--strict-environment` / `AE_STRICT_ENVIRONMENT=1` | off | Fail, not skip, on missing AE/submitter/assets or an unreachable farm. Use in CI. |
 | `AE_JOB_WAIT_TIMEOUT` | `600` | Per-job poll budget (s), same for every case. |
 | `AE_JOB_TASK_TIMEOUT` | `3600` | Task timeout stamped on cases that set none (s). |
@@ -112,7 +114,8 @@ A case is just a directory — no Python change needed.
 
 ```
 test/integ/test_cases/<Txx>_<slug>/
-└── case.json
+├── case.json
+└── expected/job_bundle/         # golden: template, parameter_values, asset_references
 ```
 
 `case.json`:
@@ -143,6 +146,20 @@ test/integ/test_cases/<Txx>_<slug>/
 - `expect_alerts` (optional): substrings of submitter warnings the case expects. Any
   other warning fails `test_bundle_generation`. T06 expects `"Missing fonts"`.
 - Set `"render": false` for cases that should only ever build a bundle (never render).
+
+### Golden bundles
+
+Each case commits the bundle the submitter is expected to build. Paths and versions
+are stored as placeholders (`<ASSETS>`, `<TEMP>`, `<HOME>`, `ae<YEAR>`,
+`aftereffects=<VER>`), so one golden serves every host and AE version. A version
+that genuinely differs gets its own `expected/job_bundle-ae<YEAR>/`.
+
+After an intended submitter change:
+
+```bash
+AE_UPDATE_GOLDENS=1 hatch run integ:test test/integ -k golden
+git diff test/integ/test_cases    # review every change before committing
+```
 
 ## Artifacts
 

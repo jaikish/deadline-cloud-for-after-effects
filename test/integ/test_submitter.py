@@ -25,9 +25,10 @@ import shutil
 from pathlib import Path
 
 import pytest
+from deadline_test_fixtures.job_bundle.compare import assert_valid_job_bundle
 from harness import bundle as bundle_mod
 from harness import cases as cases_mod
-from harness import config, deadline_client
+from harness import config, deadline_client, golden
 from harness import outputs as outputs_mod
 
 _CASES = cases_mod.discover_cases()
@@ -58,6 +59,11 @@ def test_bundle_generation(case, case_run, case_dir):
     assert run.bundle_path and run.bundle_path.exists(), "Bundle path missing on disk"
 
     bundle = bundle_mod.Bundle.load(run.bundle_path)
+
+    # --- OpenJD validation ----------------------------------------------------------
+    # `openjd check` on the as-built template: the same model the farm uses to accept
+    # the job. Catches schema errors the field-by-field checks below never look at.
+    assert_valid_job_bundle(case_dir / "bundle-as-built" / "template.json")
 
     project_file = bundle.param("ProjectFile")
     assert project_file, "ProjectFile parameter absent from the bundle"
@@ -139,6 +145,22 @@ def test_bundle_generation(case, case_run, case_dir):
     for f in inputs:
         if f.replace("\\", "/").lower().startswith(assets_root):
             assert Path(f).exists(), f"Referenced input does not exist on disk: {f}"
+
+
+def test_bundle_matches_golden(case, case_run, case_dir, ae_version):
+    """The as-built bundle matches the committed golden, after normalization.
+
+    The structural and settings assertions check what we chose to check; the golden
+    catches everything else (a renamed parameter, a changed step script, a dropped
+    environment). Set ``AE_UPDATE_GOLDENS=1`` to rewrite the goldens from this run.
+    See ``harness/golden.py``.
+    """
+    assert case_run.ok, f"Submitter did not produce a bundle: {case_run.error}"
+    actual = case_dir / "bundle-as-built"
+    expected = golden.expected_dir(case.dir, ae_version)
+    if golden.update_requested():
+        golden.write_golden(actual, expected)
+    golden.assert_matches_golden(actual, expected)
 
 
 def test_job_settings(case, case_run, case_bundle_as_built, request):
