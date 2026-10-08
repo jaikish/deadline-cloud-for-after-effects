@@ -123,7 +123,7 @@ test/integ/test_cases/<Txx>_<slug>/
 ```json
 {
   "id": "T05",
-  "name": "Submit button + dockable panel",
+  "name": "Basic submit (single comp, default settings)",
   "aep_slug": "submit_dockable",
   "settings": {},
   "expect": "SUCCEEDED",

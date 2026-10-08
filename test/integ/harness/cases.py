@@ -7,7 +7,7 @@ no Python change needed. Schema::
 
     {
       "id": "T05",                      # artifact id in the superset manifest
-      "name": "Submit button + dockable panel",
+      "name": "Basic submit (single comp, default settings)",
       "aep_slug": "submit_dockable",    # matches the .aep filename slug
       "settings": {},                   # submitter settings (see driver JSX)
       "expect": "SUCCEEDED",            # expected terminal job status for the render layer

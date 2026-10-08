@@ -30,7 +30,7 @@
     "special_char_still": "source_assets/special_characters/plate_ñ=+-_v1.0.0.png"
   },
   "tests": [
-    {"id": "T05", "name": "Submit Button + is Dockable", "aep_slug": "submit_dockable", "comps": 1, "output_module": "H.264", "assets": ["still"]},
+    {"id": "T05", "name": "Basic submit (single comp, default settings)", "aep_slug": "submit_dockable", "comps": 1, "output_module": "H.264", "assets": ["still"]},
     {"id": "T06", "name": "Video Rendering + Custom Fonts", "aep_slug": "video_custom_fonts", "comps": 1, "output_module": "H.264", "assets": ["video"], "fonts": ["amazon_ember", "creative_cloud", "missing"]},
     {"id": "T07", "name": "Audio Rendering", "aep_slug": "audio_render", "comps": 1, "output_module": "AIFF 48kHz (audio only)", "assets": ["audio_mp3"]},
     {"id": "T08", "name": "Image Chunking", "aep_slug": "image_chunking_300f", "comps": 1, "frames": 300, "output_module": "TIFF Sequence", "frames_per_task_to_test": [1, 100, 299, 300]},
